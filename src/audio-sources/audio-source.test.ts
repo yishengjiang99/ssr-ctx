@@ -15,13 +15,12 @@ describe("audio-data-sources", () => {
     let source = new AudioDataSource(ctx, {
       start: 0.15,
     });
-    ctx.start();
-
-    console.log(ctx.pump());
-    expect(source.read()).to.equal(null);
     expect(ctx.currentTime).to.equal(0);
+
+    ctx.start();
+    expect(ctx.currentTime).to.equal(ctx.secondsPerFrame);
+    expect(source.read()).to.equal(null);
     expect(ctx.playing).true;
     done();
-    console.log(ctx.listenerCount);
   });
 });

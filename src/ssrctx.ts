@@ -71,13 +71,8 @@ export class SSRContext extends Readable {
     }
   }
   async _read(): Promise<Uint8Array> | null {
-    if (this.playing) {
-      return await new Promise<Uint8Array>((resolve) =>
-        this.on("data", resolve)
-      );
-    } else {
-      return null;
-    }
+    return null;
+
     // return this.pump();
   }
 
@@ -88,6 +83,10 @@ export class SSRContext extends Readable {
       .filter((i) => i.isActive())
       .map((i) => i.read());
     const ninputs = inputbuffers.length;
+    if (ninputs === 1) {
+      this.push(new Uint8Array(inputbuffers[0]));
+      return ok;
+    }
     const summingbuffer = new this.sampleArray(this.blockSize);
     for (let i = 0; i < this.blockSize; i++) {
       for (let j = 0; j < ninputs; j++) {
