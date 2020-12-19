@@ -16,9 +16,8 @@ describe("oscillator", () => {
     const osc = new Oscillator(SSRContext.default(), { frequency: 440 });
     expect(osc).instanceOf(Readable);
     const read = osc.read();
-    console.log(osc.read());
     for (let i = 0; i < 128; i++) {
-      process.stdout.write(ctx.decoder.decode(read, i) + "\n"); //read[1]
+      // process.stdout.write(ctx.decoder.decode(read, i) + "\n"); //read[1]
     }
     done();
   });

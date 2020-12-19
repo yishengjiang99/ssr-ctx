@@ -21,6 +21,7 @@ export class SSRContext extends Readable {
   frameNumber: number;
   bitDepth: number;
   timer: any;
+  t0: number;
   static default(): SSRContext {
     return new SSRContext(SSRContext.defaultProps);
   }
@@ -109,24 +110,32 @@ export class SSRContext extends Readable {
   }
   connect(destination: Writable) {
     this.output = destination;
-    this.start();
+    if (!this.playing) this.start();
   }
   start = () => {
+    if (this.playing === true) return;
     this.playing = true;
-    if (this.output === null) return;
+    this.t0 = process.uptime();
     let that = this;
-    this.timer = setInterval(() => {
-      that.pump();
+
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+    function loop() {
       if (!that.playing || (that.end && that.currentTime >= that.end)) {
         that.stop(0);
-        clearInterval(this.timer);
+        clearTimeout(that.timer);
       }
-    }, this.secondsPerFrame);
+      that.pump();
+      that.timer = setTimeout(loop, that.secondsPerFrame * 1000); //that.secondsPerFrame);
+    }
+    that.timer = setTimeout(loop, that.secondsPerFrame * 1000);
   };
   getRms() {}
 
   stop(second?: number) {
-    if (second === 0) {
+    if (second === 0 || !second) {
+      clearTimeout(this.timer);
       this.playing = false;
       this.emit("finish");
     } else {
@@ -144,3 +153,20 @@ export class SSRContext extends Readable {
 // setInterval(() => {
 //   ctx.read();
 // }, 3.3);
+// const ctx = SSRContext.default();
+// ctx.start();
+// process.stdout.write(ctx.frameNumber + "");
+
+// process.stdout.write(ctx.frameNumber + "");
+// setTimeout(() => {
+//   // ctx.stop();
+//   // ctx.start();
+//   setTimeout(() => {
+//     ctx.stop();
+
+//     // const ct2 = SSRContext.default();
+//     // ct2.start();
+//     console.log(ctx.currentTime);
+//     // ct2.stop(0.1);
+//   }, 1300);
+// }, 200);

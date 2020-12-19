@@ -9,6 +9,7 @@ import { EventEmitter } from "events";
 import { Worker, isMainThread, parentPort, workerData } from "worker_threads";
 
 import { SharedRingBuffer } from "grep-sbr";
+import { EventSource } from "src/event-source";
 
 // const service=createServer();
 // service.listen('/tmp/memcache.d');
@@ -19,18 +20,6 @@ const cache4 = new FlatCache(200, 0.25 * ctx.bytesPerSecond);
 const cache2 = new FlatCache(30, 0.5 * ctx.bytesPerSecond);
 const workerPool = [];
 type seconds = number;
-export class EventSource extends EventEmitter {
-  constructor(ctx: SSRContext, src: string) {
-    super();
-    const { stdin, stdout, stderr } = spawn("curl", ["-s", src, "-o", "-"]);
-    stderr.on("data", (d) => console.error(d.toString()));
-    stdout.pipe(new ReadlineTransform("\n\n")).on("data", (d) => {
-      const match = d.toString().match(/event: (\S+)\ndata: (\S+)$/);
-      if (match === null) console.error(d.toString());
-      else this.emit(match[1], JSON.parse(match[2]));
-    });
-  }
-}
 
 class EventSequenceSource extends AudioDataSource {
   srb: SharedRingBuffer;
