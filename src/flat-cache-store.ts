@@ -19,6 +19,7 @@ export class FlatCache {
         .split("|");
       this.cache = readFileSync(file + ".cache.pcm");
     }
+    console.log(this.cache.byteLength);
   }
   set(key: string, value: Buffer) {
     this.cacheKeys[this.n] = key;

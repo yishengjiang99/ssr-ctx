@@ -3,6 +3,7 @@ import { Readable, ReadableOptions } from "stream";
 export interface AudioDataSourceOptions extends ReadableOptions {
   start?: number;
   end?: number;
+  _buffer?: Buffer;
 }
 export class AudioDataSource extends Readable {
   ctx: SSRContext;
@@ -14,7 +15,6 @@ export class AudioDataSource extends Readable {
     this.ctx = ctx;
     this.start = opts?.start;
     this.end = opts?.end;
-    ctx.inputs.push(this);
   }
 
   isActive = () => {

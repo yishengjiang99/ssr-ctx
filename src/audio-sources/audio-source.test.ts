@@ -20,6 +20,7 @@ describe("audio-data-sources", () => {
     ctx.stop();
     done();
   });
+
   it("starts currentime increase by frame", (done) => {
     const ctx = new SSRContext({ nChannels: 2, sampleRate: 48000 });
     expect(ctx.blockSize).eq(128 * 2);
@@ -35,5 +36,21 @@ describe("audio-data-sources", () => {
 
       done();
     }, 1101);
+  });
+});
+
+describe("scheduled audio sprites", () => {
+  it("schedules a sequence os sounds", () => {
+    const ctx = new SSRContext({
+      nChannels: 2,
+      bitDepth: 32,
+      sampleRate: 48000,
+    });
+    const sprites = [
+      new AudioDataSource(ctx, {
+        start: 0.1245,
+        end: 0.254,
+      }),
+    ];
   });
 });
