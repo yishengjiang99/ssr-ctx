@@ -10,7 +10,7 @@ describe("audio-data-sources", () => {
     const ctx = new SSRContext({ nChannels: 1, sampleRate: 44100 });
     expect(ctx.playing).false;
 
-    let source: AudioDataSource = new AudioDataSource(ctx, {
+    const source: AudioDataSource = new AudioDataSource(ctx, {
       start: 0.15,
     });
     expect(ctx.playing).false;
