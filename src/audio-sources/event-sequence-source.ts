@@ -1,11 +1,9 @@
 import { AudioDataSource } from "./audio-data-source";
-import { request } from "https";
-import { ReadlineTransform } from "grep-transform";
+
 import { SSRContext } from "../ssrctx";
 import { FlatCache } from "flat-cache";
 import { spawn } from "child_process";
 import { openSync, closeSync, readSync } from "fs";
-import { EventEmitter } from "events";
 import { Worker, isMainThread, parentPort, workerData } from "worker_threads";
 
 import { SharedRingBuffer } from "grep-sbr";
@@ -18,25 +16,24 @@ const ctx = new SSRContext(SSRContext.defaultProps);
 const cache4 = new FlatCache(200, 0.25 * ctx.bytesPerSecond);
 
 const cache2 = new FlatCache(30, 0.5 * ctx.bytesPerSecond);
-const workerPool = [];
 type seconds = number;
 
-class EventSequenceSource extends AudioDataSource {
+export class EventSequenceSource extends AudioDataSource {
   srb: SharedRingBuffer;
   pendingWrites: number = 0;
-  time: seconds;
-  ticks: number;
+  time: seconds = 0;
+  ticks: number = 0;
   worker: Worker;
   bpm: number = 120;
-  constructor(ctx: SSRContext, url) {
+  constructor(ctx: SSRContext, url: string) {
     super(ctx);
 
     this.srb = new SharedRingBuffer(this.ctx.bytesPerSecond * 5.2);
-    const emit = new EventSource(ctx, url);
+    const emit = new EventSource(url);
     this.worker = new Worker("./dist/audio-sources/event-sequence-source.js", {
       workerData: { sharedBuffer: this.srb.sharedBuffer },
     });
-    this.worker.on("message", (wrote) => {
+    this.worker.on("message", () => {
       this.pendingWrites--;
       //      console.log("pending write" + this.pendingWrites);
     });
@@ -76,7 +73,6 @@ class EventSequenceSource extends AudioDataSource {
 }
 
 if (isMainThread) {
-  const evt = new EventSequenceSource(ctx, "https://www.grepawk.com/bach/rt");
   ///ctx.inputs.push(evt);
   ctx.pipe(process.stdout);
   ctx.pipe(
@@ -85,7 +81,7 @@ if (isMainThread) {
   ctx.start();
 } else {
   const u32intarr = new Uint32Array(workerData.sharedBuffer);
-  const writePartial = (wptr, bufferFromFile: Buffer) => {
+  const writePartial = (wptr: number, bufferFromFile: Buffer) => {
     let index = 0;
     while (index * 4 < bufferFromFile.byteLength - 4) {
       const dvv = new DataView(bufferFromFile.buffer);
@@ -97,27 +93,31 @@ if (isMainThread) {
     }
     return index;
   };
+  if (!parentPort) throw "now parent port";
   parentPort.on("message", (d) => {
-    const { path, wptr, duration, velocity, retry } = d;
+    const { path, wptr, duration } = d;
     const ticks = parseInt(duration);
     let cache = ticks < 0.25 ? cache4 : ticks < 0.5 ? cache2 : null;
     const ob = loadBuffer(path, cache, duration * ctx.bytesPerSecond);
     const dat = ob.slice(0, duration * ctx.bytesPerSecond);
     const n_wrote = writePartial(wptr, dat);
-    parentPort.postMessage(n_wrote);
+    parentPort!.postMessage(n_wrote);
   });
 }
-export function loadBuffer(file: string, noteCache: FlatCache, bytes: number) {
+export function loadBuffer(
+  file: string,
+  noteCache: FlatCache | null,
+  bytes: number
+): Buffer {
   let ob;
   if (noteCache) {
-    const cacheKey = file;
     if (
       noteCache &&
       noteCache.cacheKeys.includes(file) &&
       noteCache.read(file) !== null
     ) {
       //  console.log("cache hitt");
-      return noteCache.read(file);
+      return noteCache.read(file) as Buffer;
     }
     //console.log("cache miss " + cacheKey + "cache size ");
     ob = noteCache.malloc(file);

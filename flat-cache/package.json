@@ -1,5 +1,6 @@
 {
   "name": "flat-cache",
+  "types":"flat-cache-store.d.ts",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
