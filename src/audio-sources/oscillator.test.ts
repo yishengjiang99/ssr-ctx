@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { SSRContext } from "../ssrctx";
-import { Oscillator } from "./Oscillator";
+import { Oscillator } from "./oscillator";
 import { Readable } from "stream";
 describe("oscillator", () => {
   it("it has a frequency", (done) => {
