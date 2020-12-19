@@ -133,7 +133,7 @@ export class SSRContext extends Readable {
       that.pump();
       that.timer = setTimeout(loop, that.secondsPerFrame * 1000); //that.secondsPerFrame);
     }
-    that.timer = setTimeout(loop, that.secondsPerFrame * 1000);
+    loop();
   };
 
   stop(second?: number): void {
@@ -152,7 +152,6 @@ export class SSRContext extends Readable {
 
 // ctx.connect(createWriteStream("mid2.wav"));
 // ctx.start();
-
 // setInterval(() => {
 //   ctx.read();
 // }, 3.3);

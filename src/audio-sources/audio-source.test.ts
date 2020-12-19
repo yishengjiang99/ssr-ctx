@@ -30,7 +30,6 @@ describe("audio-data-sources", () => {
 
     // ctx.connect(process.stdout);
     setTimeout(() => {
-      console.log(ctx.frameNumber);
       ctx.stop();
       expect(ctx.currentTime).gt(1).lt(1.2);
 
