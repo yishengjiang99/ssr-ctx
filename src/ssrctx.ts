@@ -39,15 +39,15 @@ export class SSRContext extends Readable {
   inputs: AudioDataSource[] = [];
 
   constructor(
-    { nChannels, sampleRate, bitDepth }: CtxProps = SSRContext.defaultProps
+    { nChannels, sampleRate, bitDepth, fps }: CtxProps = SSRContext.defaultProps
   ) {
     super();
 
-    this.nChannels = nChannels!;
-    this.sampleRate = sampleRate!;
-    this.fps = this.sampleRate / 128;
+    this.nChannels = nChannels || 2;
+    this.sampleRate = sampleRate || 44100;
+    this.fps = fps || this.sampleRate / 128;
     this.frameNumber = 0;
-    this.bitDepth = bitDepth!;
+    this.bitDepth = bitDepth || 32;
     this.encoder = new Encoder(this.bitDepth);
     this.decoder = new Decoder(this.bitDepth);
     this.playing = false;
@@ -56,7 +56,7 @@ export class SSRContext extends Readable {
     return 1 / this.fps;
   }
   get samplesPerFrame() {
-    return 128;
+    return (this.sampleRate * this.nChannels) / this.fps;
   }
 
   encode(buffer: Buffer, value: number, index: number): void {
@@ -81,6 +81,7 @@ export class SSRContext extends Readable {
 
   pump(): boolean {
     this.frameNumber++;
+
     const inputbuffers = this.inputs
       .filter((i) => i.isActive())
       .map((i) => i.read())
@@ -98,7 +99,10 @@ export class SSRContext extends Readable {
         summingbuffer[i] += (this.decoder.decode(buf, i) || 9) / ninputs;
       }
     }
-    this.push(new Uint8Array(summingbuffer.buffer));
+    this.emit("data", new Uint8Array(summingbuffer.buffer));
+    // this.inputs = this.inputs.filter((i) => i.readableEnded === false);
+    // this.output.write(new Uint8Array(summingbuffer.buffer));
+    this.inputs = this.inputs.filter((i) => i.isActive());
     return true;
   }
   get blockSize(): number {
@@ -114,7 +118,7 @@ export class SSRContext extends Readable {
   }
   connect(destination: Writable): void {
     this.output = destination;
-    if (!this.playing) this.start();
+    // if (!this.playing) this.start();
   }
   start = (): void => {
     if (this.playing === true) return;

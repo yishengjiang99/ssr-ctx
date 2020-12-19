@@ -23,7 +23,6 @@ describe("audio-data-sources", () => {
 
   it("starts currentime increase by frame", (done) => {
     const ctx = new SSRContext({ nChannels: 2, sampleRate: 48000 });
-    expect(ctx.blockSize).eq(128 * 2);
     expect(ctx.playing).false;
 
     ctx.start();
@@ -32,25 +31,9 @@ describe("audio-data-sources", () => {
     // ctx.connect(process.stdout);
     setTimeout(() => {
       ctx.stop();
-      expect(ctx.currentTime).gt(1).lt(1.2);
+      expect(ctx.currentTime).gt(0.9).lt(1.4);
 
       done();
     }, 1101);
-  });
-});
-
-describe("scheduled audio sprites", () => {
-  it("schedules a sequence os sounds", () => {
-    const ctx = new SSRContext({
-      nChannels: 2,
-      bitDepth: 32,
-      sampleRate: 48000,
-    });
-    const sprites = [
-      new AudioDataSource(ctx, {
-        start: 0.1245,
-        end: 0.254,
-      }),
-    ];
   });
 });
