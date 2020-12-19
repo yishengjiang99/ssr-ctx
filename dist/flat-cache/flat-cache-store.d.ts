@@ -15,3 +15,4 @@ export declare class FlatCache {
 }
 export declare function cacheStore(size: number, objectByteLength: number): FlatCache;
 export declare const CacheStore: typeof FlatCache;
+//# sourceMappingURL=flat-cache-store.d.ts.map

@@ -1,5 +1,5 @@
-import { Oscillator } from "./audio-sources/Oscillator";
 import { SSRContext } from "./ssrctx";
+import { Oscillator } from "./audio-sources/Oscillator";
 
 import { expect } from "chai";
 describe("ssrctx", () => {

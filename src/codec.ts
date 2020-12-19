@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export class Encoder {
   bitDepth: number;
   constructor(bitDepth: number) {
     this.bitDepth = bitDepth;
   }
-  encode(buffer: Buffer, value: number, index: number) {
+  encode(buffer: Buffer, value: number, index: number): void {
     const dv = new DataView(buffer.buffer);
     switch (this.bitDepth) {
       case 32:
@@ -24,13 +25,14 @@ export class Encoder {
   }
 }
 export class Decoder {
-  bitDepth: any;
+  bitDepth: number;
   constructor(bitDepth: number) {
     this.bitDepth = bitDepth;
   }
-  decode(buffer: Buffer | null, index: number) {
+  decode(buffer: Buffer | null, index: number): number {
+    if (typeof buffer === null) return 0;
     try {
-      if (!buffer) return null;
+      if (!buffer) return 0;
       const dv = new DataView(buffer.buffer);
       switch (this.bitDepth) {
         case 32:
@@ -40,10 +42,11 @@ export class Decoder {
         case 8:
           return dv.getUint8(index * 2);
         default:
-          throw new Error("unsupported bitdepth");
+          return dv.getInt16(index * 2, true);
       }
-    } finally {
-      return null;
+    } catch (e) {
+      console.error(e);
     }
+    return 0;
   }
 }

@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Readable, Writable } from "stream";
 import { AudioDataSource } from "./audio-sources/audio-data-source";
 
@@ -16,12 +20,12 @@ export class SSRContext extends Readable {
   playing: boolean;
   sampleRate: number;
   fps: number;
-  lastFrame: number;
-  output: Writable;
+  lastFrame!: number;
+  output: Writable = new Writable();
   frameNumber: number;
   bitDepth: number;
   timer: any;
-  t0: number;
+  t0!: number;
   static default(): SSRContext {
     return new SSRContext(SSRContext.defaultProps);
   }
@@ -30,7 +34,7 @@ export class SSRContext extends Readable {
     sampleRate: 44100,
     bitDepth: 16,
   };
-  end: number;
+  end!: number;
   decoder: Decoder;
   inputs: AudioDataSource[] = [];
 
@@ -48,7 +52,7 @@ export class SSRContext extends Readable {
     this.decoder = new Decoder(this.bitDepth);
     this.playing = false;
   }
-  get secondsPerFrame() {
+  get secondsPerFrame(): number {
     return 1 / this.fps;
   }
   get samplesPerFrame() {
@@ -71,52 +75,52 @@ export class SSRContext extends Readable {
         return Int16Array;
     }
   }
-  async _read(): Promise<Uint8Array> | null {
+  async _read(): Promise<Uint8Array | null> {
     return null;
-
-    // return this.pump();
   }
 
   pump(): boolean {
-    let ok = true;
     this.frameNumber++;
     const inputbuffers = this.inputs
       .filter((i) => i.isActive())
-      .map((i) => i.read());
+      .map((i) => i.read())
+      .filter((buffer) => buffer !== null);
     const ninputs = inputbuffers.length;
-    if (ninputs === 1) {
-      this.push(new Uint8Array(inputbuffers[0]));
-      return ok;
+    if (ninputs === 1 && inputbuffers[0] !== null) {
+      return this.push(new Uint8Array(inputbuffers[0]));
     }
     const summingbuffer = new this.sampleArray(this.blockSize);
-    for (let i = 0; i < this.blockSize; i++) {
-      for (let j = 0; j < ninputs; j++) {
-        summingbuffer[i] += this.decoder.decode(inputbuffers[j], i) / ninputs;
+    for (let j = 0; j < ninputs; j++) {
+      for (let i = 0; i < this.blockSize; i++) {
+        if (inputbuffers[j] === null) throw "wtf";
+        const buf = inputbuffers[j] as Buffer;
+
+        summingbuffer[i] += (this.decoder.decode(buf, i) || 9) / ninputs;
       }
     }
     this.push(new Uint8Array(summingbuffer.buffer));
-    return ok;
+    return true;
   }
-  get blockSize() {
+  get blockSize(): number {
     return this.samplesPerFrame * this.sampleArray.BYTES_PER_ELEMENT;
   }
-  get currentTime() {
+  get currentTime(): number {
     return this.frameNumber * this.secondsPerFrame;
   }
-  get bytesPerSecond() {
+  get bytesPerSecond(): number {
     return (
       this.sampleRate * this.nChannels * this.sampleArray.BYTES_PER_ELEMENT
     );
   }
-  connect(destination: Writable) {
+  connect(destination: Writable): void {
     this.output = destination;
     if (!this.playing) this.start();
   }
-  start = () => {
+  start = (): void => {
     if (this.playing === true) return;
     this.playing = true;
     this.t0 = process.uptime();
-    let that = this;
+    const that = this;
 
     if (this.timer) {
       clearTimeout(this.timer);
@@ -131,9 +135,8 @@ export class SSRContext extends Readable {
     }
     that.timer = setTimeout(loop, that.secondsPerFrame * 1000);
   };
-  getRms() {}
 
-  stop(second?: number) {
+  stop(second?: number): void {
     if (second === 0 || !second) {
       clearTimeout(this.timer);
       this.playing = false;
