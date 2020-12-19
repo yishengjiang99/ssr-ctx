@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import { EventSource } from "./event-source";
-import * as ipc from "node-ipc";
 
 describe("EventSource", () => {
   let evt;
