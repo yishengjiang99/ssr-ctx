@@ -18,7 +18,7 @@ describe("audio buffer source", () => {
     expect(sprite.isActive()).true;
     expect(ctx.inputs.length).eq(1);
     expect(ctx.playing).false;
-    ctx.pipe(process.stdout);
+   // ctx.pipe(process.stdout);
     ctx.pump();
     console.log(ctx.blockSize);
     expect(sprite.buffer.byteLength).to.equal(48000 * 4 * 0.9);
