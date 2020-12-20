@@ -17,7 +17,6 @@ class SSRContext extends stream_1.Readable {
             if (this.playing === true)
                 return;
             this.playing = true;
-            this.t0 = process.uptime();
             const that = this;
             if (this.timer) {
                 clearTimeout(this.timer);
@@ -69,7 +68,6 @@ class SSRContext extends stream_1.Readable {
         return null;
     }
     pump() {
-        this.frameNumber++;
         const inputbuffers = this.inputs
             .filter((i) => i.isActive())
             .map((i) => i.read())
@@ -88,8 +86,7 @@ class SSRContext extends stream_1.Readable {
             }
         }
         this.emit("data", new Uint8Array(summingbuffer.buffer));
-        // this.inputs = this.inputs.filter((i) => i.readableEnded === false);
-        // this.output.write(new Uint8Array(summingbuffer.buffer));
+        this.frameNumber++;
         this.inputs = this.inputs.filter((i) => i.isActive());
         return true;
     }
@@ -104,7 +101,7 @@ class SSRContext extends stream_1.Readable {
     }
     connect(destination) {
         this.output = destination;
-        // if (!this.playing) this.start();
+        this.pipe(destination);
     }
     stop(second) {
         if (second === 0 || !second) {

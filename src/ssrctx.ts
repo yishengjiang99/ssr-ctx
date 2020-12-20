@@ -20,12 +20,10 @@ export class SSRContext extends Readable {
   playing: boolean;
   sampleRate: number;
   fps: number;
-  lastFrame!: number;
   output: Writable = new Writable();
   frameNumber: number;
   bitDepth: number;
   timer: any;
-  t0!: number;
   static default(): SSRContext {
     return new SSRContext(SSRContext.defaultProps);
   }
@@ -80,14 +78,13 @@ export class SSRContext extends Readable {
   }
 
   pump(): boolean {
-    this.frameNumber++;
-
     const inputbuffers = this.inputs
       .filter((i) => i.isActive())
       .map((i) => i.read())
       .filter((buffer) => buffer !== null);
     const ninputs = inputbuffers.length;
     if (ninputs === 1 && inputbuffers[0] !== null) {
+      this.frameNumber++;
       return this.push(new Uint8Array(inputbuffers[0]));
     }
     const summingbuffer = new this.sampleArray(this.blockSize);
@@ -100,8 +97,7 @@ export class SSRContext extends Readable {
       }
     }
     this.emit("data", new Uint8Array(summingbuffer.buffer));
-    // this.inputs = this.inputs.filter((i) => i.readableEnded === false);
-    // this.output.write(new Uint8Array(summingbuffer.buffer));
+    this.frameNumber++;
     this.inputs = this.inputs.filter((i) => i.isActive());
     return true;
   }
@@ -118,12 +114,11 @@ export class SSRContext extends Readable {
   }
   connect(destination: Writable): void {
     this.output = destination;
-    // if (!this.playing) this.start();
+    this.pipe(destination);
   }
   start = (): void => {
     if (this.playing === true) return;
     this.playing = true;
-    this.t0 = process.uptime();
     const that = this;
 
     if (this.timer) {

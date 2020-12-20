@@ -16,6 +16,7 @@ describe("audio buffer source", () => {
             end: 1,
             buffer: Buffer.allocUnsafe(48000 * 4),
         });
+        chai_1.expect(sprite.isPaused()).false;
         chai_1.expect(sprite.isActive()).true;
         chai_1.expect(ctx.inputs.length).eq(1);
         chai_1.expect(ctx.playing).false;

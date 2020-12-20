@@ -20,7 +20,7 @@ export class ScheduledBufferSource extends AudioDataSource {
     this.ctx.inputs.push(this);
   }
 
-  isActive = () => {
+  isActive = (): boolean => {
     if (this.readableEnded) return false;
     if (this.start > this.ctx.currentTime) return false;
     if (this.end < this.ctx.currentTime) return false;
@@ -30,12 +30,13 @@ export class ScheduledBufferSource extends AudioDataSource {
   read(): Buffer | null {
     const ret = this.buffer.slice(0, this.ctx.blockSize);
     this.buffer = this.buffer.slice(this.ctx.blockSize);
-    console.log(this.buffer.byteLength);
     if (this.buffer.byteLength === 0) {
       this.emit("end", true);
-      console.log(this);
     }
     return ret;
+  }
+  addBuffer(buf: Buffer): void {
+    this.unshift(buf);
   }
   free(): void {
     //  this.buffer = null;

@@ -8,14 +8,17 @@ export class AudioDataSource extends Readable {
   ctx: SSRContext;
   start: number | void;
   end: number | null;
-  constructor(ctx: SSRContext, { start, end }: Partial<AudioDataSourceOptions> = {}) {
+  constructor(
+    ctx: SSRContext,
+    { start, end }: Partial<AudioDataSourceOptions> = {}
+  ) {
     super();
     this.ctx = ctx;
     this.start = start || 0;
     this.end = end || null;
   }
 
-  isActive = () => {
+  isActive = (): boolean => {
     if (this.readableEnded) return false;
     return true;
   };
@@ -23,5 +26,4 @@ export class AudioDataSource extends Readable {
     console.log("this is an abstract class");
     return null;
   }
-  free(): void {}
 }

@@ -14,12 +14,10 @@ export declare class SSRContext extends Readable {
     playing: boolean;
     sampleRate: number;
     fps: number;
-    lastFrame: number;
     output: Writable;
     frameNumber: number;
     bitDepth: number;
     timer: any;
-    t0: number;
     static default(): SSRContext;
     static defaultProps: CtxProps;
     end: number;

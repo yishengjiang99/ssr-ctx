@@ -25,12 +25,14 @@ class ScheduledBufferSource extends audio_data_source_1.AudioDataSource {
     read() {
         const ret = this.buffer.slice(0, this.ctx.blockSize);
         this.buffer = this.buffer.slice(this.ctx.blockSize);
-        console.log(this.buffer.byteLength);
         if (this.buffer.byteLength === 0) {
             this.emit("end", true);
             console.log(this);
         }
         return ret;
+    }
+    addBuffer(buf) {
+        this.unshift(buf);
     }
     free() {
         //  this.buffer = null;

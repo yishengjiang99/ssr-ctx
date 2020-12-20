@@ -18,7 +18,6 @@ class AudioDataSource extends stream_1.Readable {
         console.log("this is an abstract class");
         return null;
     }
-    free() { }
 }
 exports.AudioDataSource = AudioDataSource;
 //# sourceMappingURL=audio-data-source.js.map
