@@ -27,7 +27,6 @@ class ScheduledBufferSource extends audio_data_source_1.AudioDataSource {
         this.buffer = this.buffer.slice(this.ctx.blockSize);
         if (this.buffer.byteLength === 0) {
             this.emit("end", true);
-            console.log(this);
         }
         return ret;
     }

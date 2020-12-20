@@ -74,6 +74,7 @@ class SSRContext extends stream_1.Readable {
             .filter((buffer) => buffer !== null);
         const ninputs = inputbuffers.length;
         if (ninputs === 1 && inputbuffers[0] !== null) {
+            this.frameNumber++;
             return this.push(new Uint8Array(inputbuffers[0]));
         }
         const summingbuffer = new this.sampleArray(this.blockSize);

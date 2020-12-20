@@ -9,7 +9,7 @@ describe("audio buffer source", () => {
             nChannels: 1,
             bitDepth: 32,
             sampleRate: 48000,
-            fps: 10,
+            fps: 5,
         });
         const sprite = new scheduled_buffer_source_1.ScheduledBufferSource(ctx, {
             start: 0,
@@ -20,12 +20,21 @@ describe("audio buffer source", () => {
         chai_1.expect(sprite.isActive()).true;
         chai_1.expect(ctx.inputs.length).eq(1);
         chai_1.expect(ctx.playing).false;
-        // ctx.pipe(process.stdout);
         ctx.pump();
         console.log(ctx.blockSize);
-        chai_1.expect(sprite.buffer.byteLength).to.equal(48000 * 4 * 0.9);
+        chai_1.expect(sprite.buffer.byteLength).to.equal(48000 * 4 * 0.8);
+        const sprite2 = new scheduled_buffer_source_1.ScheduledBufferSource(ctx, {
+            start: 0,
+            end: 1,
+            buffer: Buffer.allocUnsafe(48000 * 4),
+        });
+        chai_1.expect(ctx.inputs.length).to.equal(2);
         ctx.pump();
+        console.log(ctx.inputs);
         chai_1.expect(ctx.frameNumber).to.eq(2);
+        for (let i = 2; i < 5; i++)
+            ctx.pump();
+        chai_1.expect(ctx.inputs.length).eq(1);
         for (let i = 18; i > 0; i--)
             ctx.pump();
         chai_1.expect(sprite.isActive()).false;
