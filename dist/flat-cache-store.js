@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cacheStore = exports.FlatCache = void 0;
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 const fs_1 = require("fs");
 class FlatCache {
     constructor(size, objectbyteLength, file) {
@@ -32,7 +33,7 @@ class FlatCache {
     }
     reallocIfNeeded() {
         if (this.n > 0.89 * this.cacheKeys.length) {
-            this.n = 0;
+            this.n = 0; //reset/
         }
     }
     read(key) {

@@ -1,4 +1,4 @@
-import { SSRContext } from "src";
+import { SSRContext } from "../";
 import { AudioDataSource } from "./audio-data-source";
 
 export type ScheduledBufferSourceOptions = {

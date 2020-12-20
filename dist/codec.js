@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Decoder = exports.Encoder = void 0;
+/* eslint-disable @typescript-eslint/no-explicit-any */
 class Encoder {
     constructor(bitDepth) {
         this.bitDepth = bitDepth;
