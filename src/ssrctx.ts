@@ -92,16 +92,17 @@ export class SSRContext extends Readable {
     );
 
     //    const inputs =
+    const duck = inputviews.length;
     for (let k = 0; k < summingbuffer.byteLength / 2; k += 4) {
       let sum = 0;
       for (let j = inputviews.length - 1; j >= 0; j--) {
-        if (sum > 0.6) sum += 0.4 * inputviews[j].getFloat32(k, true);
-        else sum += inputviews[j].getFloat32(k, true);
+        sum +=  inputviews[j].getFloat32(k, true)/duck;
+      //  else sum += inputviews[j].getFloat32(k, true);
       }
 
-      summingbuffer.setFloat32(2 * k, compression(sum), true);
+      summingbuffer.setFloat32(2 * k, sum, true);
 
-      summingbuffer.setFloat32(2 * k + 4, compression(sum), true);
+      summingbuffer.setFloat32(2 * k + 4, sum, true);
     }
 
     this.emit("data", new Uint8Array(summingbuffer.buffer));

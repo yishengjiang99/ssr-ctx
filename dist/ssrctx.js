@@ -74,21 +74,13 @@ class SSRContext extends stream_1.Readable {
         const summingbuffer = new DataView(new this.sampleArray(this.samplesPerFrame * 2).buffer);
         const inputviews = this.inputs.map((i) => new DataView(i.read(this.blockSize).buffer));
         //    const inputs =
+        const duck = inputviews.length;
         for (let k = 0; k < summingbuffer.byteLength / 2; k += 4) {
             let sum = 0;
-            //    console.log(summingbuffer.byteLength);
-            for (let j = 0; j < inputviews.length; j++) {
-                sum += inputviews[j].getFloat32(k, true) / inputviews.length;
+            for (let j = inputviews.length - 1; j >= 0; j--) {
+                sum += inputviews[j].getFloat32(k, true) / duck;
+                //  else sum += inputviews[j].getFloat32(k, true);
             }
-            if (sum > 0.8)
-                console.log(sum);
-            if (sum > 0.8)
-                sum = 0.8 + (sum - 0.8) / 20;
-            if (sum > 0.9)
-                sum = 0.9 + (sum - 0.9) / 40;
-            if (sum > 0.99999)
-                sum = 0.99999;
-            // process.exit();
             summingbuffer.setFloat32(2 * k, sum, true);
             summingbuffer.setFloat32(2 * k + 4, sum, true);
         }

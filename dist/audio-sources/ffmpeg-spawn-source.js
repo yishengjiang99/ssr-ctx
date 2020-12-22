@@ -14,14 +14,13 @@ class FFAEvalSource extends audio_data_source_1.AudioDataSource {
         this.buffer = Buffer.alloc(0);
         this.pt = new stream_1.PassThrough();
         this.proc = child_process_1.spawn("ffmpeg", `-hide_banner -f lavfi -i aevalsrc='${expression}' -t ${seconds} ${fmtString(ctx)} -`.split(" "));
-        console.log(`-hide_banner -f lavfi -i aevalsrc='${expression}' -t ${seconds} ${fmtString(ctx)}`);
         this.proc.stdout.on("data", (d) => {
             this.buffer = Buffer.concat([this.buffer, d]);
         });
         this.proc.stdout.on("end", () => {
             this.emit("end");
         });
-        this.proc.stderr.pipe(process.stderr);
+        // this.proc.stderr.pipe(process.stderr);
         ctx.inputs.push(this);
     }
 }
