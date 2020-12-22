@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "lib": ["es2018"],
+    "lib": ["es2015"],
     "module": "CommonJS",
     "esModuleInterop": false,
     "target": "ES2018",
@@ -12,7 +12,9 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "alwaysStrict": true,
-    "strictFunctionTypes": true
+    "moduleResolution": "node",
+    "strictFunctionTypes": true,
+    "isolatedModules": true
   },
   "include": ["src"]
 }

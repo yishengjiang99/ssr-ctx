@@ -7,17 +7,18 @@ exports.SSRContext = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const stream_1 = require("stream");
 const codec_1 = require("./codec");
+const mix_transform_1 = require("./mix-transform");
 //#endregion
 class SSRContext extends stream_1.Readable {
     constructor({ nChannels, sampleRate, bitDepth, fps } = SSRContext.defaultProps) {
         super();
+        this.activeInputs = 0;
         this.output = new stream_1.Writable();
         this.inputs = [];
         this.start = () => {
             if (this.playing === true)
                 return;
             this.playing = true;
-            this.t0 = process.uptime();
             const that = this;
             if (this.timer) {
                 clearTimeout(this.timer);
@@ -40,6 +41,7 @@ class SSRContext extends stream_1.Readable {
         this.encoder = new codec_1.Encoder(this.bitDepth);
         this.decoder = new codec_1.Decoder(this.bitDepth);
         this.playing = false;
+        this.aggregate = new mix_transform_1.MixTransform(this);
     }
     static default() {
         return new SSRContext(SSRContext.defaultProps);
@@ -69,27 +71,21 @@ class SSRContext extends stream_1.Readable {
         return null;
     }
     pump() {
-        this.frameNumber++;
-        const inputbuffers = this.inputs
-            .filter((i) => i.isActive())
-            .map((i) => i.read())
-            .filter((buffer) => buffer !== null);
-        const ninputs = inputbuffers.length;
-        if (ninputs === 1 && inputbuffers[0] !== null) {
-            return this.push(new Uint8Array(inputbuffers[0]));
-        }
-        const summingbuffer = new this.sampleArray(this.blockSize);
-        for (let j = 0; j < ninputs; j++) {
-            for (let i = 0; i < this.blockSize; i++) {
-                if (inputbuffers[j] === null)
-                    throw "wtf";
-                const buf = inputbuffers[j];
-                summingbuffer[i] += (this.decoder.decode(buf, i) || 9) / ninputs;
+        const summingbuffer = new DataView(new this.sampleArray(this.samplesPerFrame * 2).buffer);
+        const inputviews = this.inputs.map((i) => new DataView(i.read(this.blockSize).buffer));
+        //    const inputs =
+        const duck = inputviews.length;
+        for (let k = 0; k < summingbuffer.byteLength / 2; k += 4) {
+            let sum = 0;
+            for (let j = inputviews.length - 1; j >= 0; j--) {
+                sum += inputviews[j].getFloat32(k, true) / duck;
+                //  else sum += inputviews[j].getFloat32(k, true);
             }
+            summingbuffer.setFloat32(2 * k, sum, true);
+            summingbuffer.setFloat32(2 * k + 4, sum, true);
         }
         this.emit("data", new Uint8Array(summingbuffer.buffer));
-        // this.inputs = this.inputs.filter((i) => i.readableEnded === false);
-        // this.output.write(new Uint8Array(summingbuffer.buffer));
+        this.frameNumber++;
         this.inputs = this.inputs.filter((i) => i.isActive());
         return true;
     }
@@ -104,7 +100,7 @@ class SSRContext extends stream_1.Readable {
     }
     connect(destination) {
         this.output = destination;
-        // if (!this.playing) this.start();
+        this.pipe(destination);
     }
     stop(second) {
         if (second === 0 || !second) {

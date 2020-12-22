@@ -1,34 +1,32 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ScheduledBufferSource = void 0;
+exports.PulseSource = void 0;
 const audio_data_source_1 = require("./audio-data-source");
-class ScheduledBufferSource extends audio_data_source_1.AudioDataSource {
+class PulseSource extends audio_data_source_1.AudioDataSource {
     constructor(ctx, opts) {
-        super(ctx, opts);
+        super(ctx);
+        this.envelopeIndex = 0;
         this.isActive = () => {
             if (this.buffer.byteLength === 0)
                 return false;
             return true;
         };
         this.ctx = ctx;
-        this.start = opts.start;
-        this.end = opts.end;
         this.buffer = opts.buffer; // || null;
         this.ctx.inputs.push(this);
     }
-    read(n) {
-        n = n || this.ctx.blockSize;
-        const output = Buffer.allocUnsafe(n).fill(0);
-        output.set(this.buffer.slice(0, n));
-        this.buffer = this.buffer.slice(n);
+    read() {
+        const output = Buffer.alloc(this.ctx.blockSize).fill(0);
+        output.set(this.buffer.slice(0, this.ctx.blockSize));
+        this.buffer = this.buffer.slice(this.ctx.blockSize);
         return output;
     }
     addBuffer(buf) {
-        this.unshift(buf);
+        this.buffer = Buffer.concat([this.buffer, buf]);
     }
     free() {
         //  this.buffer = null;
     }
 }
-exports.ScheduledBufferSource = ScheduledBufferSource;
-//# sourceMappingURL=scheduled-buffer-source.js.map
+exports.PulseSource = PulseSource;
+//# sourceMappingURL=pulse-source.js.map

@@ -16,7 +16,7 @@ describe("audio-data-sources", () => {
     expect(ctx.playing).false;
 
     expect(ctx.currentTime).to.equal(0);
-    expect(source.read()).to.equal(null);
+    expect(source.read()[24]).to.equal(0);
     ctx.stop();
     done();
   });

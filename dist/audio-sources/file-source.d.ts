@@ -10,7 +10,6 @@ export declare class FileSource extends AudioDataSource {
     constructor(ctx: SSRContext, { filePath, }: {
         filePath: string;
     });
-    prepare?: (currentTime: number) => void;
     read(): Buffer;
     free(): void;
 }

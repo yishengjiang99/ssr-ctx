@@ -7,11 +7,13 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     o[k2] = m[k];
 }));
 var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) __createBinding(exports, m, p);
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./audio-data-source"), exports);
 __exportStar(require("./scheduled-buffer-source"), exports);
 __exportStar(require("./file-source"), exports);
 __exportStar(require("./oscillator"), exports);
+__exportStar(require("./pulse-source"), exports);
+__exportStar(require("./ffmpeg-spawn-source"), exports);
 //# sourceMappingURL=index.js.map
