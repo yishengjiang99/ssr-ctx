@@ -6,6 +6,7 @@ import { Readable, Writable } from "stream";
 import { AudioDataSource } from "./audio-sources/audio-data-source";
 
 import { Decoder, Encoder } from "./codec";
+import { MixTransform } from "./mix-transform";
 export interface CtxProps {
   nChannels?: number;
   sampleRate?: number;
@@ -15,6 +16,7 @@ export interface CtxProps {
 
 //#endregion
 export class SSRContext extends Readable {
+  activeInputs = 0;
   encoder: Encoder;
   nChannels: number;
   playing: boolean;
@@ -24,6 +26,7 @@ export class SSRContext extends Readable {
   frameNumber: number;
   bitDepth: number;
   timer: any;
+  aggregate: MixTransform;
   static default(): SSRContext {
     return new SSRContext(SSRContext.defaultProps);
   }
@@ -49,6 +52,7 @@ export class SSRContext extends Readable {
     this.encoder = new Encoder(this.bitDepth);
     this.decoder = new Decoder(this.bitDepth);
     this.playing = false;
+    this.aggregate = new MixTransform(this);
   }
   get secondsPerFrame(): number {
     return 1 / this.fps;
@@ -78,24 +82,36 @@ export class SSRContext extends Readable {
   }
 
   pump(): boolean {
-    const inputbuffers = this.inputs
-      .filter((i) => i.isActive())
-      .map((i) => i.read())
-      .filter((buffer) => buffer !== null);
-    const ninputs = inputbuffers.length;
-    if (ninputs === 1 && inputbuffers[0] !== null) {
-      this.frameNumber++;
-      return this.push(new Uint8Array(inputbuffers[0]));
-    }
-    const summingbuffer = new this.sampleArray(this.blockSize);
-    for (let j = 0; j < ninputs; j++) {
-      for (let i = 0; i < this.blockSize; i++) {
-        if (inputbuffers[j] === null) throw "wtf";
-        const buf = inputbuffers[j] as Buffer;
+    const summingbuffer = new DataView(
+      new this.sampleArray(this.samplesPerFrame * 2).buffer
+    );
 
-        summingbuffer[i] += (this.decoder.decode(buf, i) || 9) / ninputs;
+    const inputviews = this.inputs.map(
+      (i) => new DataView(i.read(this.blockSize).buffer)
+    );
+
+    //    const inputs =
+    for (let k = 0; k < summingbuffer.byteLength / 2; k += 4) {
+      let sum = 0;
+      //    console.log(summingbuffer.byteLength);
+      for (let j = 0; j < inputviews.length; j++) {
+        if (k >= inputviews[j].buffer.byteLength) {
+          continue;
+        } else {
+          
+          sum += inputviews[j].getFloat32(k, true)/(inputviews.length);
+        }
       }
+      if (sum > 0.8) console.log(sum);
+      if (sum > 0.8) sum = 0.8 + (sum - 0.8) / 20;
+      if (sum > 0.9) sum = 0.9 + (sum - 0.9) / 40;
+      if (sum > 0.99999) sum = 0.99999;
+      // process.exit();
+      summingbuffer.setFloat32(2 * k, sum, true);
+
+      summingbuffer.setFloat32(2 * k + 4, sum, true);
     }
+
     this.emit("data", new Uint8Array(summingbuffer.buffer));
     this.frameNumber++;
     this.inputs = this.inputs.filter((i) => i.isActive());

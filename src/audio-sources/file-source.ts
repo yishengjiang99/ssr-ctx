@@ -24,14 +24,11 @@ export class FileSource extends AudioDataSource {
     this.offset = 0;
   }
 
-  prepare?: (currentTime: number) => void = () => {};
-
   read(): Buffer {
     const ob = Buffer.allocUnsafe(this.ctx.blockSize);
     readSync(this.fd, ob, 0, ob.byteLength, this.offset);
     this.offset += ob.byteLength;
     if (this.offset > this.size) {
-      console.log("dd");
       this.emit("ended");
     }
     return ob;

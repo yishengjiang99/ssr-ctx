@@ -7,6 +7,7 @@ export interface AudioDataSourceOptions extends ReadableOptions {
 export class AudioDataSource extends Readable {
   ctx: SSRContext;
   start: number | void;
+  buffer: Buffer = Buffer.alloc(0);
   end: number | null;
   constructor(
     ctx: SSRContext,
@@ -22,8 +23,11 @@ export class AudioDataSource extends Readable {
     if (this.readableEnded) return false;
     return true;
   };
-  read(): Buffer | null {
-    console.log("this is an abstract class");
+  read(n?: number): Buffer {
+    n = n || this.ctx.blockSize;
+    const output = Buffer.allocUnsafe(n).fill(0);
+    output.set(this.buffer.slice(0, n));
+    this.buffer = this.buffer.slice(n);
     return null;
   }
 }
