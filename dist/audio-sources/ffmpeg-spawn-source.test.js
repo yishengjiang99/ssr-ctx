@@ -1,17 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const chai_1 = require("chai");
 const ssrctx_1 = require("../ssrctx");
 const ffmpeg_spawn_source_1 = require("./ffmpeg-spawn-source");
 describe("ffmpeg-spawn-source", () => {
-    it("avalsrc", () => {
+    it("avalsrc", (done) => {
         const ctx = ssrctx_1.SSRContext.default();
-        ctx.sampleRate = 440;
+        ctx.sampleRate = 44100;
         ctx.bitDepth = 32;
-        ctx.fps = 32;
+        ctx.fps = 31;
         ctx.nChannels = 1;
         // expect(ctx.blockSize).to.eq(ctx.sampleRate * 4);
         const src = new ffmpeg_spawn_source_1.FFAEvalSource(ctx, "sin(2*PI*440*t)", 1);
-        src.pipe(process.stdout);
+        const g = src.read();
+        chai_1.expect(g[0]).eq(0);
+        done();
+        //src.pipe(process.stdout);
         // src.on("readable", () => {
         //   const buf = src.read();
         //   console.log(buf);

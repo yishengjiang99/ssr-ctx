@@ -38,6 +38,4 @@ describe("audio buffer source", () => {
     expect(ctx.inputs.length).to.equal(0);
     ctx.stop();
   });
-
-  it("can read from flat cache");
 });

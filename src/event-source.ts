@@ -10,7 +10,6 @@ export class EventSource extends EventEmitter {
     const { stdout, stderr } = this.proc;
     stderr!.on("data", (d) => console.error(d.toString()));
     stdout!.pipe(new ReadlineTransform("\n\n")).on("data", (d) => {
-      console.log("--------", d.toString(), "------");
       const match = d.toString().match(/event: (\S+)\ndata: (\S+)/);
       if (match === null) {
         console.log("xxxxxxx", console.error(d.toString()));

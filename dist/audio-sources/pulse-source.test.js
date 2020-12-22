@@ -20,7 +20,8 @@ describe("pulse souce", () => {
         });
         chai_1.expect(pipe.buffer.byteLength).eq(ctx.blockSize * 3);
         ctx.on("data", (d) => {
-            process.stdout.write(d);
+            chai_1.expect(d.byteLength).to.eq(ctx.blockSize);
+            // process.stdout.write(d);
             done();
         });
         ctx.pump();

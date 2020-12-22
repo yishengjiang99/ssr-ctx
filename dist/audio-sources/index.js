@@ -14,4 +14,6 @@ __exportStar(require("./audio-data-source"), exports);
 __exportStar(require("./scheduled-buffer-source"), exports);
 __exportStar(require("./file-source"), exports);
 __exportStar(require("./oscillator"), exports);
+__exportStar(require("./pulse-source"), exports);
+__exportStar(require("./ffmpeg-spawn-source"), exports);
 //# sourceMappingURL=index.js.map

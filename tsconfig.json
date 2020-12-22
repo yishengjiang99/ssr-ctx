@@ -12,6 +12,7 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "alwaysStrict": true,
+    "moduleResolution": "node",
     "strictFunctionTypes": true,
     "isolatedModules": true
   },

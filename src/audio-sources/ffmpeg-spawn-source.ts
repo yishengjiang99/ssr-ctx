@@ -20,18 +20,14 @@ export class FFAEvalSource extends AudioDataSource {
         ctx
       )} -`.split(" ")
     );
-    console.log(
-      `-hide_banner -f lavfi -i aevalsrc='${expression}' -t ${seconds} ${fmtString(
-        ctx
-      )}`
-    );
+
     this.proc.stdout.on("data", (d) => {
       this.buffer = Buffer.concat([this.buffer, d]);
     });
     this.proc.stdout.on("end", () => {
       this.emit("end");
     });
-    this.proc.stderr.pipe(process.stderr);
+    // this.proc.stderr.pipe(process.stderr);
     ctx.inputs.push(this);
   }
 }

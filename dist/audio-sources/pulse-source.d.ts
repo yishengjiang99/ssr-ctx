@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { SSRContext } from "..";
 import { AudioDataSource } from "./audio-data-source";
+export declare type percent = number;
 export declare type PulseSourceOptions = {
     buffer: Buffer;
 };

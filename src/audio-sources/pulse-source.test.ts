@@ -19,7 +19,7 @@ describe("pulse souce", () => {
     });
     expect(pipe.buffer.byteLength).eq(ctx.blockSize * 3);
     ctx.on("data", (d) => {
-      expect(d.byteLength).to.eq(ctx.blockSize);
+      expect(d.byteLength).to.eq(ctx.blockSize * 2);
       // process.stdout.write(d);
       done();
     });

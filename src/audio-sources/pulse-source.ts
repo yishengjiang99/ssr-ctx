@@ -3,9 +3,6 @@ import { AudioDataSource } from "./audio-data-source";
 export type percent = number;
 export type PulseSourceOptions = {
   buffer: Buffer;
-  adsr: {
-    attack;
-  };
 };
 export class PulseSource extends AudioDataSource {
   ctx: SSRContext;
@@ -17,11 +14,6 @@ export class PulseSource extends AudioDataSource {
     this.buffer = opts.buffer; // || null;
     this.ctx.inputs.push(this);
   }
-  static ampGain = (envelopeIndex: number): number => {
-    if (envelopeIndex < this.adsr[0]) {
-    }
-    return 1;
-  };
 
   isActive = (): boolean => {
     if (this.buffer.byteLength === 0) return false;

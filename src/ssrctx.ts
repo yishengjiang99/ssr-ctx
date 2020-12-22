@@ -6,6 +6,7 @@ import { Readable, Writable } from "stream";
 import { AudioDataSource } from "./audio-sources/audio-data-source";
 
 import { Decoder, Encoder } from "./codec";
+import { compression } from "./dynamicCompression";
 import { MixTransform } from "./mix-transform";
 export interface CtxProps {
   nChannels?: number;
@@ -93,18 +94,14 @@ export class SSRContext extends Readable {
     //    const inputs =
     for (let k = 0; k < summingbuffer.byteLength / 2; k += 4) {
       let sum = 0;
-      //    console.log(summingbuffer.byteLength);
-      for (let j = 0; j < inputviews.length; j++) {
-        sum += inputviews[j].getFloat32(k, true) / inputviews.length;
+      for (let j = inputviews.length - 1; j >= 0; j--) {
+        if (sum > 0.6) sum += 0.4 * inputviews[j].getFloat32(k, true);
+        else sum += inputviews[j].getFloat32(k, true);
       }
-      if (sum > 0.8) console.log(sum);
-      if (sum > 0.8) sum = 0.8 + (sum - 0.8) / 20;
-      if (sum > 0.9) sum = 0.9 + (sum - 0.9) / 40;
-      if (sum > 0.99999) sum = 0.99999;
-      // process.exit();
-      summingbuffer.setFloat32(2 * k, sum, true);
 
-      summingbuffer.setFloat32(2 * k + 4, sum, true);
+      summingbuffer.setFloat32(2 * k, compression(sum), true);
+
+      summingbuffer.setFloat32(2 * k + 4, compression(sum), true);
     }
 
     this.emit("data", new Uint8Array(summingbuffer.buffer));

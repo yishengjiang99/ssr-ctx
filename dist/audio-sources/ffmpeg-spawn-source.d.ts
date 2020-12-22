@@ -8,6 +8,4 @@ export declare class FFAEvalSource extends AudioDataSource {
     pt: PassThrough;
     buffer: Buffer;
     constructor(ctx: SSRContext, expression: string, seconds: number);
-    read(): Buffer | null;
 }
-export declare const cspawnToBuffer: (prco: ChildProcess, ob?: Buffer) => Promise<Buffer>;

@@ -20,7 +20,7 @@ class AudioDataSource extends stream_1.Readable {
         const output = Buffer.allocUnsafe(n).fill(0);
         output.set(this.buffer.slice(0, n));
         this.buffer = this.buffer.slice(n);
-        return null;
+        return output;
     }
 }
 exports.AudioDataSource = AudioDataSource;
