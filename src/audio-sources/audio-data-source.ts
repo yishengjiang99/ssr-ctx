@@ -28,6 +28,6 @@ export class AudioDataSource extends Readable {
     const output = Buffer.allocUnsafe(n).fill(0);
     output.set(this.buffer.slice(0, n));
     this.buffer = this.buffer.slice(n);
-    return null;
+    return output;
   }
 }

@@ -5,6 +5,7 @@ const stream_1 = require("stream");
 class AudioDataSource extends stream_1.Readable {
     constructor(ctx, { start, end } = {}) {
         super();
+        this.buffer = Buffer.alloc(0);
         this.isActive = () => {
             if (this.readableEnded)
                 return false;
@@ -14,8 +15,11 @@ class AudioDataSource extends stream_1.Readable {
         this.start = start || 0;
         this.end = end || null;
     }
-    read() {
-        console.log("this is an abstract class");
+    read(n) {
+        n = n || this.ctx.blockSize;
+        const output = Buffer.allocUnsafe(n).fill(0);
+        output.set(this.buffer.slice(0, n));
+        this.buffer = this.buffer.slice(n);
         return null;
     }
 }

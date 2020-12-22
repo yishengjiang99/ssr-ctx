@@ -8,8 +8,9 @@ export interface AudioDataSourceOptions extends ReadableOptions {
 export declare class AudioDataSource extends Readable {
     ctx: SSRContext;
     start: number | void;
+    buffer: Buffer;
     end: number | null;
     constructor(ctx: SSRContext, { start, end }?: Partial<AudioDataSourceOptions>);
     isActive: () => boolean;
-    read(): Buffer | null;
+    read(n?: number): Buffer;
 }

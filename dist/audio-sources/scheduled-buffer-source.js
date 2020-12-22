@@ -6,12 +6,6 @@ class ScheduledBufferSource extends audio_data_source_1.AudioDataSource {
     constructor(ctx, opts) {
         super(ctx, opts);
         this.isActive = () => {
-            if (this.readableEnded)
-                return false;
-            if (this.start > this.ctx.currentTime)
-                return false;
-            if (this.end < this.ctx.currentTime)
-                return false;
             if (this.buffer.byteLength === 0)
                 return false;
             return true;
@@ -22,13 +16,12 @@ class ScheduledBufferSource extends audio_data_source_1.AudioDataSource {
         this.buffer = opts.buffer; // || null;
         this.ctx.inputs.push(this);
     }
-    read() {
-        const ret = this.buffer.slice(0, this.ctx.blockSize);
-        this.buffer = this.buffer.slice(this.ctx.blockSize);
-        if (this.buffer.byteLength === 0) {
-            this.emit("end", true);
-        }
-        return ret;
+    read(n) {
+        n = n || this.ctx.blockSize;
+        const output = Buffer.allocUnsafe(n).fill(0);
+        output.set(this.buffer.slice(0, n));
+        this.buffer = this.buffer.slice(n);
+        return output;
     }
     addBuffer(buf) {
         this.unshift(buf);

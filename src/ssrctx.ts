@@ -95,12 +95,7 @@ export class SSRContext extends Readable {
       let sum = 0;
       //    console.log(summingbuffer.byteLength);
       for (let j = 0; j < inputviews.length; j++) {
-        if (k >= inputviews[j].buffer.byteLength) {
-          continue;
-        } else {
-          
-          sum += inputviews[j].getFloat32(k, true)/(inputviews.length);
-        }
+        sum += inputviews[j].getFloat32(k, true) / inputviews.length;
       }
       if (sum > 0.8) console.log(sum);
       if (sum > 0.8) sum = 0.8 + (sum - 0.8) / 20;

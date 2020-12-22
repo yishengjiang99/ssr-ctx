@@ -30,7 +30,6 @@ describe("audio buffer source", () => {
         });
         chai_1.expect(ctx.inputs.length).to.equal(2);
         ctx.pump();
-        console.log(ctx.inputs);
         chai_1.expect(ctx.frameNumber).to.eq(2);
         for (let i = 2; i < 5; i++)
             ctx.pump();

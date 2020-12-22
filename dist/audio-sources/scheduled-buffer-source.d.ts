@@ -13,7 +13,7 @@ export declare class ScheduledBufferSource extends AudioDataSource {
     buffer: Buffer;
     constructor(ctx: SSRContext, opts: ScheduledBufferSourceOptions);
     isActive: () => boolean;
-    read(): Buffer | null;
+    read(n: number): Buffer | null;
     addBuffer(buf: Buffer): void;
     free(): void;
 }

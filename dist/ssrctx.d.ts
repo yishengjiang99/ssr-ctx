@@ -2,6 +2,7 @@
 import { Readable, Writable } from "stream";
 import { AudioDataSource } from "./audio-sources/audio-data-source";
 import { Decoder, Encoder } from "./codec";
+import { MixTransform } from "./mix-transform";
 export interface CtxProps {
     nChannels?: number;
     sampleRate?: number;
@@ -9,6 +10,7 @@ export interface CtxProps {
     bitDepth?: number;
 }
 export declare class SSRContext extends Readable {
+    activeInputs: number;
     encoder: Encoder;
     nChannels: number;
     playing: boolean;
@@ -18,6 +20,7 @@ export declare class SSRContext extends Readable {
     frameNumber: number;
     bitDepth: number;
     timer: any;
+    aggregate: MixTransform;
     static default(): SSRContext;
     static defaultProps: CtxProps;
     end: number;

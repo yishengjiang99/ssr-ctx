@@ -10,58 +10,28 @@ function fmtString(ctx: SSRContext) {
 export class FFAEvalSource extends AudioDataSource {
   proc: ChildProcess;
   pt: PassThrough;
-  buffer: Buffer;
+  buffer: Buffer = Buffer.alloc(0);
   constructor(ctx: SSRContext, expression: string, seconds: number) {
     super(ctx);
     this.pt = new PassThrough();
     this.proc = spawn(
       "ffmpeg",
-      `-show_banner=0 -f lavfi -i aevalsrc='${expression}' -t ${seconds} ${fmtString(
+      `-hide_banner -f lavfi -i aevalsrc='${expression}' -t ${seconds} ${fmtString(
         ctx
       )} -`.split(" ")
     );
+    console.log(
+      `-hide_banner -f lavfi -i aevalsrc='${expression}' -t ${seconds} ${fmtString(
+        ctx
+      )}`
+    );
     this.proc.stdout.on("data", (d) => {
-      this.emit("data", d);
-      console.log(d);
+      this.buffer = Buffer.concat([this.buffer, d]);
     });
     this.proc.stdout.on("end", () => {
-      console.log(this.proc.exitCode);
+      this.emit("end");
     });
-  }
-
-  read(): Buffer | null {
-    if (!this.buffer) return null;
-    else {
-      const ret = this.buffer.slice(0, this.ctx.blockSize);
-
-      this.buffer = this.buffer.slice(this.ctx.blockSize);
-      if (this.buffer.byteLength === 0) {
-        this.emit("end", true);
-      }
-      return ret;
-    }
+    this.proc.stderr.pipe(process.stderr);
+    ctx.inputs.push(this);
   }
 }
-//1-i aevalsrc="sin(333*2*PI*t)" -t 1 -f f32le
-export const cspawnToBuffer = (
-  prco: ChildProcess,
-  ob: Buffer = Buffer.alloc(1024)
-): Promise<Buffer> => {
-  const { stdout } = prco;
-  return new Promise((resolve) => {
-    let offset = 0;
-    stdout.on("data", (chunk: Buffer) => {
-      if (offset + chunk.byteLength > ob.byteLength) {
-        const newOb = Buffer.alloc(ob.byteLength + 1024 + chunk.byteLength);
-        newOb.set(ob, offset);
-        ob = newOb;
-      }
-      ob.set(chunk, offset);
-      offset += chunk.byteLength;
-      console.log(chunk);
-    });
-    ob.slice(0, offset);
-    // stderr.on("data", reject);
-    stdout.on("end", () => resolve(ob));
-  });
-};

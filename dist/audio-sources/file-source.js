@@ -7,7 +7,6 @@ const fs_1 = require("fs");
 class FileSource extends audio_data_source_1.AudioDataSource {
     constructor(ctx, { filePath, }) {
         super(ctx);
-        this.prepare = () => { };
         this.fd = fs_1.openSync(filePath, "r");
         this.size = fs_1.statSync(filePath).size;
         this.ctx = ctx;
@@ -18,7 +17,6 @@ class FileSource extends audio_data_source_1.AudioDataSource {
         fs_1.readSync(this.fd, ob, 0, ob.byteLength, this.offset);
         this.offset += ob.byteLength;
         if (this.offset > this.size) {
-            console.log("dd");
             this.emit("ended");
         }
         return ob;
