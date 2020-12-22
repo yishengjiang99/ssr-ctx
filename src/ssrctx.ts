@@ -6,6 +6,8 @@ import { Readable, Writable } from "stream";
 import { AudioDataSource } from "./audio-sources/audio-data-source";
 
 import { Decoder, Encoder } from "./codec";
+import { compression } from "./dynamicCompression";
+import { MixTransform } from "./mix-transform";
 export interface CtxProps {
   nChannels?: number;
   sampleRate?: number;
@@ -15,17 +17,17 @@ export interface CtxProps {
 
 //#endregion
 export class SSRContext extends Readable {
+  activeInputs = 0;
   encoder: Encoder;
   nChannels: number;
   playing: boolean;
   sampleRate: number;
   fps: number;
-  lastFrame!: number;
   output: Writable = new Writable();
   frameNumber: number;
   bitDepth: number;
   timer: any;
-  t0!: number;
+  aggregate: MixTransform;
   static default(): SSRContext {
     return new SSRContext(SSRContext.defaultProps);
   }
@@ -51,6 +53,7 @@ export class SSRContext extends Readable {
     this.encoder = new Encoder(this.bitDepth);
     this.decoder = new Decoder(this.bitDepth);
     this.playing = false;
+    this.aggregate = new MixTransform(this);
   }
   get secondsPerFrame(): number {
     return 1 / this.fps;
@@ -80,28 +83,29 @@ export class SSRContext extends Readable {
   }
 
   pump(): boolean {
-    this.frameNumber++;
+    const summingbuffer = new DataView(
+      new this.sampleArray(this.samplesPerFrame * 2).buffer
+    );
 
-    const inputbuffers = this.inputs
-      .filter((i) => i.isActive())
-      .map((i) => i.read())
-      .filter((buffer) => buffer !== null);
-    const ninputs = inputbuffers.length;
-    if (ninputs === 1 && inputbuffers[0] !== null) {
-      return this.push(new Uint8Array(inputbuffers[0]));
-    }
-    const summingbuffer = new this.sampleArray(this.blockSize);
-    for (let j = 0; j < ninputs; j++) {
-      for (let i = 0; i < this.blockSize; i++) {
-        if (inputbuffers[j] === null) throw "wtf";
-        const buf = inputbuffers[j] as Buffer;
+    const inputviews = this.inputs.map(
+      (i) => new DataView(i.read(this.blockSize).buffer)
+    );
 
-        summingbuffer[i] += (this.decoder.decode(buf, i) || 9) / ninputs;
+    //    const inputs =
+    for (let k = 0; k < summingbuffer.byteLength / 2; k += 4) {
+      let sum = 0;
+      for (let j = inputviews.length - 1; j >= 0; j--) {
+        if (sum > 0.6) sum += 0.4 * inputviews[j].getFloat32(k, true);
+        else sum += inputviews[j].getFloat32(k, true);
       }
+
+      summingbuffer.setFloat32(2 * k, compression(sum), true);
+
+      summingbuffer.setFloat32(2 * k + 4, compression(sum), true);
     }
-    this.emit("data", new Uint8Array(summingbuffer.buffer));
-    // this.inputs = this.inputs.filter((i) => i.readableEnded === false);
-    // this.output.write(new Uint8Array(summingbuffer.buffer));
+
+    this.emit("data", Buffer.from(summingbuffer.buffer));
+    this.frameNumber++;
     this.inputs = this.inputs.filter((i) => i.isActive());
     return true;
   }
@@ -118,12 +122,11 @@ export class SSRContext extends Readable {
   }
   connect(destination: Writable): void {
     this.output = destination;
-    // if (!this.playing) this.start();
+    this.pipe(destination);
   }
   start = (): void => {
     if (this.playing === true) return;
     this.playing = true;
-    this.t0 = process.uptime();
     const that = this;
 
     if (this.timer) {
