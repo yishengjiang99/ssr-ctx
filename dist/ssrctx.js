@@ -7,6 +7,7 @@ exports.SSRContext = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const stream_1 = require("stream");
 const codec_1 = require("./codec");
+const dynamicCompression_1 = require("./dynamicCompression");
 const mix_transform_1 = require("./mix-transform");
 //#endregion
 class SSRContext extends stream_1.Readable {
@@ -74,17 +75,18 @@ class SSRContext extends stream_1.Readable {
         const summingbuffer = new DataView(new this.sampleArray(this.samplesPerFrame * 2).buffer);
         const inputviews = this.inputs.map((i) => new DataView(i.read(this.blockSize).buffer));
         //    const inputs =
-        const duck = inputviews.length;
         for (let k = 0; k < summingbuffer.byteLength / 2; k += 4) {
             let sum = 0;
             for (let j = inputviews.length - 1; j >= 0; j--) {
-                sum += inputviews[j].getFloat32(k, true) / duck;
-                //  else sum += inputviews[j].getFloat32(k, true);
+                if (sum > 0.6)
+                    sum += 0.4 * inputviews[j].getFloat32(k, true);
+                else
+                    sum += inputviews[j].getFloat32(k, true);
             }
-            summingbuffer.setFloat32(2 * k, sum, true);
-            summingbuffer.setFloat32(2 * k + 4, sum, true);
+            summingbuffer.setFloat32(2 * k, dynamicCompression_1.compression(sum), true);
+            summingbuffer.setFloat32(2 * k + 4, dynamicCompression_1.compression(sum), true);
         }
-        this.emit("data", new Uint8Array(summingbuffer.buffer));
+        this.emit("data", Buffer.from(summingbuffer.buffer));
         this.frameNumber++;
         this.inputs = this.inputs.filter((i) => i.isActive());
         return true;
@@ -96,7 +98,7 @@ class SSRContext extends stream_1.Readable {
         return this.frameNumber * this.secondsPerFrame;
     }
     get bytesPerSecond() {
-        return (this.sampleRate * this.nChannels * this.sampleArray.BYTES_PER_ELEMENT);
+        return this.sampleRate * this.nChannels * this.sampleArray.BYTES_PER_ELEMENT;
     }
     connect(destination) {
         this.output = destination;

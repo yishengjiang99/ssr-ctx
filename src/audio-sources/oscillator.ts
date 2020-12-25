@@ -14,12 +14,17 @@ export class Oscillator extends AudioDataSource {
   read(): Buffer {
     const twopie = 3.1415;
     const frames = Buffer.allocUnsafe(this.ctx.blockSize);
+
     const phase = (this.ctx.currentTime / this.frequency) * twopie;
     const cyclePerSample = (3.14 * 2 * this.frequency) / this.ctx.sampleRate;
     for (let i = 0; i < 128; i++) {
       const idx = ~~(i / this.ctx.nChannels);
       this.ctx.encode(frames, Math.sin(phase + cyclePerSample * idx) * 0.2, i);
     }
+    this.emit("data", frames);
     return frames;
+  }
+  _read(n) {
+    this.push(this.read());
   }
 }

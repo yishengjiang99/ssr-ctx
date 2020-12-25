@@ -21,7 +21,10 @@ class FFAEvalSource extends audio_data_source_1.AudioDataSource {
             this.emit("end");
         });
         // this.proc.stderr.pipe(process.stderr);
-        ctx.inputs.push(this);
+        //ctx.inputs.push(this);
+    }
+    _read(n) {
+        console.log(n);
     }
 }
 exports.FFAEvalSource = FFAEvalSource;

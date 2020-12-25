@@ -13,4 +13,5 @@ export declare class AudioDataSource extends Readable {
     constructor(ctx: SSRContext, { start, end }?: Partial<AudioDataSourceOptions>);
     isActive: () => boolean;
     read(n?: number): Buffer;
+    _read(n: any): void;
 }

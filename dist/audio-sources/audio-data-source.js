@@ -22,6 +22,9 @@ class AudioDataSource extends stream_1.Readable {
         this.buffer = this.buffer.slice(n);
         return output;
     }
+    _read(n) {
+        console.log(n);
+    }
 }
 exports.AudioDataSource = AudioDataSource;
 //# sourceMappingURL=audio-data-source.js.map

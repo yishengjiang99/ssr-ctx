@@ -138,6 +138,7 @@ export class SSRContext extends Readable {
   stop(second?: number): void {
     if (second === 0 || !second) {
       clearTimeout(this.timer);
+      this.inputs.forEach((i) => i.emit("end"));
       this.playing = false;
       this.emit("finish");
     } else {

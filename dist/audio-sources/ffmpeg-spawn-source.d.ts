@@ -8,4 +8,5 @@ export declare class FFAEvalSource extends AudioDataSource {
     pt: PassThrough;
     buffer: Buffer;
     constructor(ctx: SSRContext, expression: string, seconds: number);
+    _read(n: any): void;
 }
