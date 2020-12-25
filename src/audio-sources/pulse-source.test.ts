@@ -12,7 +12,7 @@ describe("pulse souce", () => {
       sampleRate: 48000,
     });
     const fss = new FileSource(ctx, {
-      filePath: "midisf/acoustic_grand_piano/60.pcm",
+      filePath: "samples/440.pcm",
     });
     const pipe = new PulseSource(ctx, {
       buffer: Buffer.concat([fss.read(), fss.read(), fss.read()]),

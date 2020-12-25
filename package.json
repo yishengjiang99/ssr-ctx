@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "mocha -g $npm_config_file"
+    "build": "tsc",
+    "test": "mocha"
   },
   "mocha": {
     "include": "src/*.test.ts",
