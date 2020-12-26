@@ -9,7 +9,10 @@ export class AudioDataSource extends Readable {
   start: number | void;
   buffer: Buffer = Buffer.alloc(0);
   end: number | null;
-  constructor(ctx: SSRContext, { start, end }: Partial<AudioDataSourceOptions> = {}) {
+  constructor(
+    ctx: SSRContext,
+    { start, end }: Partial<AudioDataSourceOptions> = {}
+  ) {
     super();
     this.ctx = ctx;
     this.start = start || 0;

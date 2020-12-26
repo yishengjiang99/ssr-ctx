@@ -2,6 +2,7 @@ export {};
 // { expect } from "chai";
 import { SSRContext } from "../ssrctx";
 import { AudioDataSource } from "./audio-data-source";
+import { Oscillator } from "./oscillator";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const expect = require("chai").expect;
@@ -23,6 +24,7 @@ describe("audio-data-sources", () => {
 
   it("starts currentime increase by frame", (done) => {
     const ctx = new SSRContext({ nChannels: 2, sampleRate: 48000 });
+    ctx.inputs.push(new Oscillator(ctx, { frequency: 440 }));
     expect(ctx.playing).false;
 
     ctx.start();

@@ -1,10 +1,11 @@
 {
   "name": "ssr-cxt",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "latest/greatest nodejs timer (now with dynamic compression!).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "postinstall": "tsc",
     "build": "tsc",
     "test": "mocha"
   },

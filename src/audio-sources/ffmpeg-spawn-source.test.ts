@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { SSRContext } from "../ssrctx";
 import { FFAEvalSource } from "./ffmpeg-spawn-source";
 
-describe("ffmpeg-spawn-source", () => {
+describe.skip("ffmpeg-spawn-source", () => {
   it("avalsrc", (done) => {
     const ctx = SSRContext.default();
     ctx.sampleRate = 44100;

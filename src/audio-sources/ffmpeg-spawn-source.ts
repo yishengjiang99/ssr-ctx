@@ -16,11 +16,16 @@ export class FFAEvalSource extends AudioDataSource {
   constructor(ctx: SSRContext, expression: string, seconds: number) {
     super(ctx);
     this.pt = new PassThrough();
-    this.proc = spawn("ffmpeg", `-hide_banner -f lavfi -i aevalsrc='${expression}' -t ${seconds} ${fmtString(ctx)} -`.split(" "));
+    this.proc = spawn(
+      "ffmpeg",
+      `-hide_banner -f lavfi -i aevalsrc='${expression}' -t ${seconds} ${fmtString(
+        ctx
+      )} -`.split(" ")
+    );
 
     this.proc.stdout.on("data", (d) => {
       this.buffer = Buffer.concat([this.buffer, d]);
-      console.log("d");
+
       this.push(d);
     });
     this.proc.stdout.on("error", (e) => {
