@@ -21,7 +21,6 @@ describe("audio buffer source", () => {
     expect(ctx.inputs.length).eq(1);
     expect(ctx.playing).false;
     ctx.pump();
-    console.log(ctx.blockSize);
     expect(sprite.buffer.byteLength).to.equal(48000 * 4 * 0.8);
     const sprite2 = new ScheduledBufferSource(ctx, {
       start: 0,

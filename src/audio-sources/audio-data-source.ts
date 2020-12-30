@@ -31,7 +31,6 @@ export class AudioDataSource extends Readable {
     return output;
   }
   _read(n) {
-    console.log(n);
     this.push(this.read());
   }
   _destroy() {
