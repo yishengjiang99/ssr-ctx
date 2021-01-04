@@ -13,10 +13,10 @@ describe("ssrctx", () => {
       nChannels: 1,
       sampleRate: 44100,
     });
-    const fd = openSync("./samples/440.pcm", "r"); //fish.pcm", "r");
+    const fd = openSync("./samples/440.pcm", "r");
     [1, 3, 5].map((offset) => {
-      const ob = Buffer.allocUnsafe(352800);
-      readSync(fd, ob, 0, 352800, offset * 352800);
+      const ob = Buffer.allocUnsafe(441000);
+      readSync(fd, ob, 0, 44100, offset * 44100);
       return new PulseSource(ctx, { buffer: ob });
     });
     // ctx.on("data", (d: Buffer) => {

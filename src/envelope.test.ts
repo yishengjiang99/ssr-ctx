@@ -34,7 +34,7 @@ describe("envelopes", () => {
       envelope: new Envelope(ctx.sampleRate, [1, 1, 0, 0.5]),
     });
     const pipe = new DataView(piper.read().buffer);
-    console.log(pipe);
+
     expect(pipe.getFloat32(44, true) >= pipe.getFloat32(12, true)).true;
     expect(pipe.getFloat32(12, true) >= pipe.getFloat32(8, true));
   });

@@ -12,7 +12,6 @@ export class EventSource extends EventEmitter {
     stdout!.pipe(new ReadlineTransform("\n\n")).on("data", (d) => {
       const match = d.toString().match(/event: (\S+)\ndata: (\S+)/);
       if (match === null) {
-        console.log("xxxxxxx", console.error(d.toString()));
       } else this.emit(match[1], JSON.parse(match[2]));
     });
   }

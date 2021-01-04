@@ -1,18 +1,20 @@
 {
   "name": "ssr-cxt",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "latest/greatest nodejs timer (now with dynamic compression!).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "postinstall": "tsc",
     "build": "tsc",
+    "testone": "mocha --file $npm_config_file",
     "test": "mocha"
   },
   "mocha": {
     "include": "src/*.test.ts",
     "require": [
-      "ts-node/register"
+      "ts-node/register",
+      "setupTests.js"
     ],
     "spec": "src/**/*.test.ts"
   },
@@ -27,7 +29,8 @@
   "dependencies": {
     "chai": "^4.2.0",
     "flat-cached": "^1.0.0",
-    "grep-transform": "^1.2.0"
+    "grep-transform": "^1.2.0",
+    "why-is-node-running": "^2.2.0"
   },
   "repository": {
     "type": "git",
