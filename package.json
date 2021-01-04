@@ -1,6 +1,6 @@
 {
   "name": "ssr-cxt",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "latest/greatest nodejs timer (now with dynamic compression!).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
