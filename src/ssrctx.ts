@@ -95,8 +95,7 @@ export class SSRContext extends Readable {
     for (let k = 0; k < summingbuffer.byteLength / 2; k += 4) {
       let sum = 0;
       for (let j = inputviews.length - 1; j >= 0; j--) {
-        if (sum > 0.6) sum += 0.4 * inputviews[j].getFloat32(k, true);
-        else sum += inputviews[j].getFloat32(k, true);
+        sum += inputviews[j].getFloat32(k, true);
       }
 
       summingbuffer.setFloat32(2 * k, compression(sum), true);
