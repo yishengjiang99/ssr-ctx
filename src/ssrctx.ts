@@ -139,9 +139,10 @@ export class SSRContext extends Readable {
       if (!that.playing || (that.end && that.currentTime >= that.end)) {
         that.stop(0);
         clearTimeout(that.timer);
+      } else {
+        that.pump();
+        that.timer = setTimeout(loop, that.secondsPerFrame * 1000); //that.secondsPerFrame);
       }
-      that.pump();
-      that.timer = setTimeout(loop, that.secondsPerFrame * 1000); //that.secondsPerFrame);
     }
     loop();
   };

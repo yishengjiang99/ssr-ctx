@@ -42,10 +42,3 @@ export class FFAEvalSource extends AudioDataSource {
     this.push(this.read());
   }
 }
-const g = new Gain({ value: 1 });
-g.rampValueTo(2, 48000);
-let gg = new SSRContext();
-const c = new PulseSource(gg, {
-  buffer: Buffer.alloc(16).fill(1),
-});
-console.log(gg.pump());
