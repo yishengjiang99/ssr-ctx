@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Readable, Writable } from "stream";
-import { AudioDataSource } from "./audio-sources/audio-data-source";
+import { AudioDataSource } from "./audio-sources";
 
 import { Decoder, Encoder } from "./codec";
 import { compression } from "./dynamicCompression";
@@ -14,7 +14,7 @@ export interface CtxProps {
   fps?: number;
   bitDepth?: number;
 }
-
+export type PumpProps = { preamp: number; compression: { ratio: number; threshold: number; knee: number } };
 //#endregion
 export class SSRContext extends Readable {
   activeInputs = 0;
@@ -40,9 +40,7 @@ export class SSRContext extends Readable {
   decoder: Decoder;
   inputs: AudioDataSource[] = [];
 
-  constructor(
-    { nChannels, sampleRate, bitDepth, fps }: CtxProps = SSRContext.defaultProps
-  ) {
+  constructor({ nChannels, sampleRate, bitDepth, fps }: CtxProps = SSRContext.defaultProps) {
     super();
 
     this.nChannels = nChannels || 2;
@@ -82,25 +80,29 @@ export class SSRContext extends Readable {
     return null;
   }
 
-  pump(): boolean {
-    const summingbuffer = new DataView(
-      new this.sampleArray(this.samplesPerFrame * 2).buffer
-    );
+  pump(props?: PumpProps) {
+    const {
+      preamp,
+      compression: { ratio, threshold, knee },
+    } = Object.assign({}, props, {
+      preamp: 1,
+      compression: { ratio: 4, threshold: -60, knee: -40 },
+    });
+    const summingbuffer = new DataView(new this.sampleArray(this.samplesPerFrame * 2).buffer);
 
-    const inputviews = this.inputs.map(
-      (i) => new DataView(i.read(this.blockSize).buffer)
-    );
+    const inputviews = this.inputs.map((i) => new DataView(i.read(this.blockSize).buffer));
 
     //    const inputs =
     for (let k = 0; k < summingbuffer.byteLength / 2; k += 4) {
       let sum = 0;
       for (let j = inputviews.length - 1; j >= 0; j--) {
-        sum += inputviews[j].getFloat32(k, true);
+        sum += preamp * inputviews[j].getFloat32(k, true);
       }
+      const n = compression(sum, ratio, threshold, knee);
 
-      summingbuffer.setFloat32(2 * k, compression(sum), true);
+      summingbuffer.setFloat32(2 * k, n, true);
 
-      summingbuffer.setFloat32(2 * k + 4, compression(sum), true);
+      summingbuffer.setFloat32(2 * k + 4, n, true);
     }
 
     this.emit("data", Buffer.from(summingbuffer.buffer));
@@ -119,9 +121,7 @@ export class SSRContext extends Readable {
     return this.frameNumber * this.secondsPerFrame;
   }
   get bytesPerSecond(): number {
-    return (
-      this.sampleRate * this.nChannels * this.sampleArray.BYTES_PER_ELEMENT
-    );
+    return this.sampleRate * this.nChannels * this.sampleArray.BYTES_PER_ELEMENT;
   }
   connect(destination: Writable): void {
     this.output = destination;
