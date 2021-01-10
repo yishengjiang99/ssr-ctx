@@ -5,7 +5,7 @@
 import { Readable, Writable } from "stream";
 import { AudioDataSource } from "./audio-sources";
 
-import { Decoder, Encoder } from "./codec";
+import { Decoder, Encoder, dbToFloat, floatToDb } from "./codec";
 import { compression } from "./dynamicCompression";
 import { MixTransform } from "./mix-transform";
 export interface CtxProps {
@@ -14,7 +14,7 @@ export interface CtxProps {
   fps?: number;
   bitDepth?: number;
 }
-export type PumpProps = { preamp: number; compression: { ratio: number; threshold: number; knee: number } };
+export type PumpProps = { preamp?: number; compression?: { ratio: number; threshold: number; knee: number } };
 //#endregion
 export class SSRContext extends Readable {
   activeInputs = 0;
@@ -32,9 +32,9 @@ export class SSRContext extends Readable {
     return new SSRContext(SSRContext.defaultProps);
   }
   static defaultProps: CtxProps = {
-    nChannels: 2,
-    sampleRate: 44100,
-    bitDepth: 16,
+    nChannels: 1,
+    sampleRate: 48000,
+    bitDepth: 32,
   };
   end!: number;
   decoder: Decoder;
@@ -84,21 +84,26 @@ export class SSRContext extends Readable {
     const {
       preamp,
       compression: { ratio, threshold, knee },
-    } = Object.assign({}, props, {
-      preamp: 1,
-      compression: { ratio: 4, threshold: -60, knee: -40 },
-    });
+    } = Object.assign(
+      {},
+      {
+        preamp: 1,
+        compression: { ratio: 4, threshold: -60, knee: -40 },
+      },
+      props
+    );
     const summingbuffer = new DataView(new this.sampleArray(this.samplesPerFrame * 2).buffer);
-
+    const preampsAmp = (preamp - 1) / 5;
     const inputviews = this.inputs.map((i) => new DataView(i.read(this.blockSize).buffer));
 
     //    const inputs =
     for (let k = 0; k < summingbuffer.byteLength / 2; k += 4) {
       let sum = 0;
       for (let j = inputviews.length - 1; j >= 0; j--) {
-        sum += preamp * inputviews[j].getFloat32(k, true);
+        let n = preampsAmp * inputviews[j].getFloat32(k, true);
+        sum += n;
       }
-      const n = compression(sum, ratio, threshold, knee);
+      const n = compression(sum, ratio, dbToFloat(threshold), dbToFloat(knee));
 
       summingbuffer.setFloat32(2 * k, n, true);
 

@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { execFileSync } from "child_process";
 import { execFile } from "child_process";
 import { openSync, readFileSync, readSync } from "fs";
-import { PulseSource } from "./audio-sources";
+import { FFAEvalSource, PulseSource } from "./audio-sources";
 import { SSRContext } from "./ssrctx";
 import { ffplay } from "./sinks";
 describe("ssrctx", () => {
@@ -34,4 +34,17 @@ describe("ssrctx", () => {
     ctx.start();
     // ctx.pump();
   }).timeout(10000);
+});
+describe("pump", () => {
+  it("pull sound from ctx", () => {
+    const ctx = new SSRContext({ bitDepth: 32 });
+
+    ctx.inputs.push(new FFAEvalSource(ctx, "0.1", 1));
+    ctx.on("data", (d) => {
+      console.log(d);
+      const dv = new DataView(d.buffer);
+      expect(dv.getFloat32(1, true)).to.eq(0.25);
+    });
+    ctx.pump({ preamp: 0.5 });
+  });
 });

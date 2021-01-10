@@ -12,9 +12,7 @@ export class Encoder {
         break;
       case 16:
         value = Math.min(Math.max(-1, value), 1);
-        value < 0
-          ? dv.setInt16(index * 2, value * 0x8000, true)
-          : dv.setInt16(index * 2, value * 0x7fff, true);
+        value < 0 ? dv.setInt16(index * 2, value * 0x8000, true) : dv.setInt16(index * 2, value * 0x7fff, true);
         break;
       case 8:
         buffer.writeUInt8(value, index * Uint8Array.BYTES_PER_ELEMENT);
@@ -49,4 +47,10 @@ export class Decoder {
     }
     return 0;
   }
+}
+export function dbToFloat(db) {
+  return Math.pow(10, db / 20);
+}
+export function floatToDb(fl) {
+  return Math.log(fl) * 20;
 }
