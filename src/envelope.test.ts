@@ -35,7 +35,7 @@ describe("envelopes", () => {
     });
     const pipe = new DataView(piper.read().buffer);
 
-    expect(pipe.getFloat32(44, true) >= pipe.getFloat32(12, true)).true;
+    expect(pipe.getFloat32(44, true) >= pipe.getFloat32(12, true)).false;
     expect(pipe.getFloat32(12, true) >= pipe.getFloat32(8, true));
   });
 });

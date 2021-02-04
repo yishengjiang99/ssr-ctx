@@ -34,7 +34,7 @@ export class PulseSource extends AudioDataSource {
     return true;
   };
   read(): Buffer {
-    const output = Buffer.alloc(this.ctx.blockSize).fill(0);
+    const output = Buffer.allocUnsafe(this.ctx.blockSize);
     output.set(this.buffer.slice(0, this.ctx.blockSize));
     this.buffer = this.buffer.slice(this.ctx.blockSize);
     return output;

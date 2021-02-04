@@ -36,7 +36,7 @@ describe("ssrctx", () => {
   }).timeout(10000);
 });
 describe("pump", () => {
-  it("pull sound from ctx", () => {
+  it.skip("pull sound from ctx", (): void => {
     const ctx = new SSRContext({ bitDepth: 32 });
 
     ctx.inputs.push(new FFAEvalSource(ctx, "0.1", 1));

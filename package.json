@@ -7,8 +7,8 @@
   "scripts": {
     "postinstall": "tsc",
     "build": "tsc",
-    "testone": "mocha --file $npm_config_file",
-    "test": "mocha"
+    "test": "mocha $npm_config_file",
+    "testone": "mocha"
   },
   "mocha": {
     "include": "src/*.test.ts",
@@ -27,10 +27,8 @@
   "author": "Yisheng Jiang",
   "license": "ISC",
   "dependencies": {
-    "chai": "^4.2.0",
     "flat-cached": "^1.0.0",
-    "grep-transform": "^1.2.0",
-    "why-is-node-running": "^2.2.0"
+    "grep-transform": "^1.2.0"
   },
   "repository": {
     "type": "git",
@@ -41,6 +39,7 @@
   },
   "homepage": "https://github.com/yishengjiang99/ssr-ctx#readme",
   "devDependencies": {
+    "@tsconfig/node14": "^1.0.0",
     "@types/chai": "^4.2.14",
     "@types/mocha": "^8.2.0",
     "@types/node": "^14.14.16",
