@@ -1,11 +1,10 @@
 {
   "name": "ssr-cxt",
-  "version": "1.2.6",
-  "description": "latest/greatest nodejs timer (now with dynamic compression!).",
+  "version": "1.3.6",
+  "description": "latest/greatest nodejs timer (now with envelope presets!!).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "postinstall": "tsc",
     "build": "tsc",
     "test": "mocha $npm_config_file",
     "testone": "mocha"
@@ -27,6 +26,7 @@
   "author": "Yisheng Jiang",
   "license": "ISC",
   "dependencies": {
+    "chai": "^4.3.0",
     "flat-cached": "^1.0.0",
     "grep-transform": "^1.2.0"
   },
