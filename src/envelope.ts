@@ -1,4 +1,5 @@
 import { Second, percent } from "./audio-sources";
+import { presetEnvelops } from "./preset-adsr";
 export class Envelope {
   private _multi: number;
   private _index: Second;
@@ -9,6 +10,7 @@ export class Envelope {
   deltas: number[];
   parts: number[];
   phases: number[];
+  static fromPreset: (presetId: number) => Envelope;
   constructor(
     sampleRate: number,
     [a, d, s, r]: [Second, Second, percent, Second]
@@ -28,6 +30,10 @@ export class Envelope {
       -s / 2 / r / sampleRate,
       -s / 2 / (3 * r) / sampleRate,
     ];
+  }
+  velocityModulate (velocity:number):Envelope {
+   this.adsr[0]= (145-velocity)/144;
+   return this;
   }
   shift(): number {
     let delta;
@@ -50,3 +56,10 @@ export class Envelope {
     return this._multi;
   }
 }
+
+Envelope.fromPreset=(presetId:number)=>{
+  const [a,h,d,s,r]=presetEnvelops[presetId];
+  return new Envelope(48000,[a,s,d,r]);
+
+}
+
