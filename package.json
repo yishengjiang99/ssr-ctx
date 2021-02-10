@@ -1,6 +1,6 @@
 {
   "name": "ssr-cxt",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "description": "latest/greatest nodejs timer (now with envelope presets!!).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

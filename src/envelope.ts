@@ -10,7 +10,11 @@ export class Envelope {
   deltas: number[];
   parts: number[];
   phases: number[];
-  static fromPreset: (presetId: number) => Envelope;
+  static fromPreset= (presetId: number):Envelope =>{
+      const [a,h,d,s,r]=presetEnvelops[presetId];
+      return new Envelope(48000,[a,s,d,r]);
+  };
+
   constructor(
     sampleRate: number,
     [a, d, s, r]: [Second, Second, percent, Second]
@@ -56,10 +60,3 @@ export class Envelope {
     return this._multi;
   }
 }
-
-Envelope.fromPreset=(presetId:number)=>{
-  const [a,h,d,s,r]=presetEnvelops[presetId];
-  return new Envelope(48000,[a,s,d,r]);
-
-}
-
