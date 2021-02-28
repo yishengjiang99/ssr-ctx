@@ -1,24 +1,28 @@
-import { Second, percent } from "./audio-sources";
 import { presetEnvelops } from "./preset-adsr";
+
+export type Second_ = number;
+export type percent_ = number;
 export class Envelope {
   private _multi: number;
-  private _index: Second;
-  adsr: [Second, Second, percent, Second];
+  private _index: Second_;
+  adsr: [Second_, Second_, percent_, Second_];
   attackRate: number;
   linearDecay: number;
-  tau: Second;
+  tau: Second_;
   deltas: number[];
   parts: number[];
   phases: number[];
-  static fromPreset= (presetId: number):Envelope =>{
-      const [a,h,d,s,r]=presetEnvelops[presetId];
-      return new Envelope(48000,[a,s,d,r]);
+  static fromPreset = (presetId: number): Envelope => {
+    const [a, h, d, s, r] = presetEnvelops[presetId];
+    return new Envelope(48000, [a, s, d, r]);
   };
 
   constructor(
     sampleRate: number,
-    [a, d, s, r]: [Second, Second, percent, Second]
+    [a, d, s, r]: [Second_, Second_, percent_, Second_]
   ) {
+    a = Math.max(1 / sampleRate, a);
+    d = Math.max(1 / sampleRate, d);
     this._multi = 0;
     this._index = 0;
     this.adsr = [a, d, s, r];
@@ -35,9 +39,9 @@ export class Envelope {
       -s / 2 / (3 * r) / sampleRate,
     ];
   }
-  velocityModulate (velocity:number):Envelope {
-   this.adsr[0]= (145-velocity)/144;
-   return this;
+  velocityModulate(velocity: number): Envelope {
+    this.adsr[0] = (145 - velocity) / 144;
+    return this;
   }
   shift(): number {
     let delta;
