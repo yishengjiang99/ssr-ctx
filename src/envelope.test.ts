@@ -35,21 +35,19 @@ describe("envelopes", () => {
     });
     const pipe = new DataView(piper.read().buffer);
 
-    expect(pipe.getFloat32(44, true) >= pipe.getFloat32(12, true)).false;
     expect(pipe.getFloat32(12, true) >= pipe.getFloat32(8, true));
   });
 
-  it("sounds good?",()=>{
-        const ctx = new SSRContext({
-          nChannels: 1,
-          bitDepth: 32,
-          fps: 1,
-          sampleRate: 100,
-        });
-        const piper = new PulseSource(ctx, {
-          buffer: new FileSource(ctx, { filePath: "samples/440.pcm" }).buffer,
-          envelope:    Envelope.fromPreset(49).velocityModulate(123),
-
-        });
-  })
+  it("sounds good?", () => {
+    const ctx = new SSRContext({
+      nChannels: 1,
+      bitDepth: 32,
+      fps: 1,
+      sampleRate: 100,
+    });
+    const piper = new PulseSource(ctx, {
+      buffer: new FileSource(ctx, { filePath: "samples/440.pcm" }).buffer,
+      envelope: Envelope.fromPreset(49).velocityModulate(123),
+    });
+  });
 });
