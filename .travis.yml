@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - v14
+  - v12
 notifications:
   email:
     - yisheng.jiang@gmail.com
